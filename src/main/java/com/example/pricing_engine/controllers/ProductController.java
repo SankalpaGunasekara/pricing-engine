@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/v1/api/product")
+@RequestMapping(path = "/api/v1/product")
 public class ProductController {
 
     private final ProductRepository productRepository;
@@ -27,17 +27,24 @@ public class ProductController {
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     public void addProduct(@RequestBody Product newProduct) {
 
-        Optional<Product> productOptional = productRepository.findProductByName(newProduct.getProductName());
+        List<Product> productOptional = productRepository.findByProductNameIgnoreCase(newProduct.getProductName());
 
-        productOptional.ifPresentOrElse(productTobeAdded -> {
+        if(productOptional.isEmpty()){
+            productRepository.save(newProduct);
+        }
 
-            if (!Objects.equals(newProduct.getProductName(), productTobeAdded.getProductName())) {
+        for(Product product:productOptional){
+
+            if(Objects.equals(product.getProductName(), newProduct.getProductName())){
+
+                System.out.println("present");
+                throw new RuntimeException();
+            }
+            else{
                 productRepository.save(newProduct);
             }
-        }, () -> {
-
-            throw new RuntimeException("operation failed;------> existing" + productOptional + "------> newly added" + newProduct);
-        });
+        }
+//
 
 
     }
