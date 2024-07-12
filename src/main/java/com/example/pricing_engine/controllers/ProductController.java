@@ -2,7 +2,9 @@ package com.example.pricing_engine.controllers;
 
 import com.example.pricing_engine.models.Product;
 import com.example.pricing_engine.repositories.ProductRepository;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,12 +27,13 @@ public class ProductController {
     }
 
     @RequestMapping(path = "/add", method = RequestMethod.POST)
-    public void addProduct(@RequestBody Product newProduct) {
+    public ResponseEntity<String> addProduct(@NotNull @RequestBody Product newProduct) {
 
         List<Product> productOptional = productRepository.findByProductNameIgnoreCase(newProduct.getProductName());
 
         if(productOptional.isEmpty()){
             productRepository.save(newProduct);
+            return new ResponseEntity<>("Product added successfully!", HttpStatus.CREATED);
         }
 
         for(Product product:productOptional){
@@ -44,8 +47,8 @@ public class ProductController {
                 productRepository.save(newProduct);
             }
         }
-//
 
+        return new ResponseEntity<>("Product added successfully!", HttpStatus.CREATED);
 
     }
 
